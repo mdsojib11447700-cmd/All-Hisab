@@ -1,0 +1,8 @@
+{
+  "name": "Remix AppCraft",
+  "description": "Easily build custom mobile applications tailored to your specific needs and preferences.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
