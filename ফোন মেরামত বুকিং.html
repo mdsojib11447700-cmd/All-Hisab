@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ফোন মেরামত বুকিং</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#171a1f;--mu:#667085;--bd:#e3e6eb;--pr:#0b7a5b;--prt:#fff;--ac:#e8f5f0;--wa:#b54708;--wab:#fef0c7;--bx:#175cd3;--bxb:#e0ecff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101316;--card:#1a1e23;--tx:#eef0f3;--mu:#98a2b3;--bd:#2c323a;--pr:#32c597;--prt:#06241a;--ac:#12332a;--wa:#fdb022;--wab:#3a2a08;--bx:#84adff;--bxb:#13284f}}
+:root[data-theme="dark"]{--bg:#101316;--card:#1a1e23;--tx:#eef0f3;--mu:#98a2b3;--bd:#2c323a;--pr:#32c597;--prt:#06241a;--ac:#12332a;--wa:#fdb022;--wab:#3a2a08;--bx:#84adff;--bxb:#13284f}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0}h2{font-size:16px;margin:0 0 10px}
+.mu{color:var(--mu);font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:12px 0}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:4px;margin:12px 0}
+.tabs button{flex:1;border:0;background:none;color:var(--mu);padding:9px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--pr);color:var(--prt)}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+.btn{display:inline-block;border:0;background:var(--pr);color:var(--prt);padding:11px 16px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;margin-top:12px}
+.btn.s{padding:7px 12px;margin:0;font-size:13px}.btn.g{background:var(--ac);color:var(--pr)}
+.est{background:var(--ac);border-radius:10px;padding:10px;margin-top:12px;font-weight:700;color:var(--pr)}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.p0{background:var(--bxb);color:var(--bx)}.p1{background:var(--wab);color:var(--wa)}.p2{background:var(--ac);color:var(--pr)}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden;margin:10px 0 4px}.bar i{display:block;height:100%;background:var(--pr)}
+.steps{display:flex;justify-content:space-between;font-size:12px;color:var(--mu)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--ac);border-radius:12px;padding:12px}.stat b{display:block;font-size:20px;color:var(--pr)}
+.hide{display:none}.msg{font-size:13px;color:var(--wa);margin-top:8px}
+a{color:var(--pr)}
+</style>
+</head>
+<body>
+<main>
+<h1>📱 <span id="shopName"></span></h1>
+<div class="mu">ফোন মেরামত · অনলাইন বুকিং</div>
+<div class="tabs"><button id="t1" class="on" onclick="tab(1)">কাস্টমার</button><button id="t2" onclick="tab(2)">দোকান (মালিক)</button></div>
+
+<section id="v1">
+  <div class="card">
+    <h2>নতুন বুকিং</h2>
+    <label>আপনার নাম</label><input id="name">
+    <label>মোবাইল নম্বর</label><input id="phone" type="tel" inputmode="tel" placeholder="01XXXXXXXXX">
+    <label>ফোনের মডেল (ব্র্যান্ড)</label><select id="brand"></select>
+    <input id="model" placeholder="মডেল লিখুন, যেমন: Galaxy A15 / iPhone 12" style="margin-top:6px">
+    <label>সমস্যা</label><select id="prob"></select>
+    <label>বিস্তারিত (ঐচ্ছিক)</label><textarea id="note" rows="2"></textarea>
+    <div class="est" id="est"></div>
+    <div class="mu">* এটি আনুমানিক দাম। ফোন দেখার পর দোকান চূড়ান্ত দাম জানাবে।</div>
+    <button class="btn" onclick="book()">বুকিং করুন</button>
+    <div class="msg" id="bmsg"></div>
+  </div>
+  <div class="card">
+    <h2>আমার কাজের অবস্থা</h2>
+    <input id="track" type="tel" inputmode="tel" placeholder="বুকিংয়ের মোবাইল নম্বর দিন" oninput="renderTrack()">
+    <div id="trackList"></div>
+  </div>
+  <div class="card">
+    <h2>দোকানের ঠিকানা</h2>
+    <div id="shopInfo"></div>
+    <a class="btn g" id="callBtn" style="margin-right:6px">📞 কল করুন</a><a class="btn g" id="mapBtn" target="_blank" rel="noopener">📍 ম্যাপ</a>
+  </div>
+</section>
+
+<section id="v2" class="hide">
+  <div id="lock" class="card">
+    <h2>মালিকের পিন</h2>
+    <input id="pin" type="password" inputmode="numeric" placeholder="পিন দিন">
+    <button class="btn" onclick="unlock()">খুলুন</button><div class="msg" id="pmsg"></div>
+  </div>
+  <div id="panel" class="hide">
+    <div class="stats">
+      <div class="stat">আজকের আয়<b id="sToday">0</b></div>
+      <div class="stat">এই মাসের আয়<b id="sMonth">0</b></div>
+      <div class="stat">চলমান কাজ<b id="sOpen">0</b></div>
+      <div class="stat">মোট ডেলিভারি রেডি<b id="sDone">0</b></div>
+    </div>
+    <h2 style="margin-top:16px">অর্ডার তালিকা</h2>
+    <div id="orders"></div>
+  </div>
+</section>
+<div class="mu" id="mode" style="text-align:center;margin:16px 0"></div>
+</main>
+
+<script>
+// ===== দোকানের তথ্য: এখানে নিজের তথ্য বসান =====
+const SHOP={name:"আপনার দোকানের নাম",phone:"01909527797",addr:"শপ নং ১২, মার্কেট রোড, নারায়ণগঞ্জ",map:"https://www.google.com/maps/search/?api=1&query=Market+Road+Narayanganj",pin:"1245"};
+// ===== সমস্যা ও বেস দাম (টাকা) =====
+const PROBS={"স্ক্রিন / ডিসপ্লে ভাঙা":[1800,6500],"ব্যাটারি পরিবর্তন":[600,2500],"চার্জিং পোর্ট":[400,1200],"সফটওয়্যার / হ্যাং":[300,800],"স্পিকার / মাইক":[300,900],"ক্যামেরা":[800,3500],"পানিতে পড়েছে":[800,2500],"অন্যান্য":[300,1500]};
+// ব্র্যান্ড অনুযায়ী গুণক
+const BR={"Samsung":1.2,"iPhone":2.2,"Xiaomi":1,"Realme":1,"Oppo":1,"Vivo":1,"Walton":0.7,"Symphony":0.6,"অন্যান্য":1};
+const ST=["জমা হয়েছে","কাজ চলছে","রেডি"],PCT=[15,60,100];
+const $=id=>document.getElementById(id);
+let orders=[],store=null,unlocked=false;
+$("shopName").textContent=SHOP.name;
+$("shopInfo").innerHTML=SHOP.addr+"<br>ফোন: <b>"+SHOP.phone+"</b>";
+$("callBtn").href="tel:"+SHOP.phone;$("mapBtn").href=SHOP.map;
+$("brand").innerHTML=Object.keys(BR).map(b=>"<option>"+b+"</option>").join("");
+$("prob").innerHTML=Object.keys(PROBS).map(p=>"<option>"+p+"</option>").join("");
+const fmt=n=>"৳"+Math.round(n).toLocaleString("en-US");
+function est(){const[a,b]=PROBS[$("prob").value],m=BR[$("brand").value];
+  const lo=Math.round(a*m/50)*50,hi=Math.round(b*m/50)*50;return[lo,hi]}
+function showEst(){const[lo,hi]=est();$("est").textContent="আনুমানিক খরচ: "+fmt(lo)+" – "+fmt(hi)}
+$("brand").onchange=$("prob").onchange=showEst;showEst();
+function tab(n){$("v1").classList.toggle("hide",n!=1);$("v2").classList.toggle("hide",n!=2);$("t1").classList.toggle("on",n==1);$("t2").classList.toggle("on",n==2)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const norm=p=>String(p).replace(/\D/g,"").slice(-10);
+
+// ===== ডেটা স্টোর: shared db থাকলে সেটা, না হলে ব্রাউজারে (ডেমো) =====
+async function initStore(){
+  try{
+    const db=await claude.use("db");
+    if(db){const c=db.collection("orders");
+      store={mode:"db",add:o=>c.doc(o.id).set(o),upd:(id,d)=>c.doc(id).update(d)};
+      c.onSnapshot(s=>{orders=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{});
+      $("mode").textContent="🟢 লাইভ মোড: কাস্টমার ও দোকানের ডেটা একসাথে সিঙ্ক হচ্ছে";return}
+  }catch(e){}
+  try{orders=JSON.parse(localStorage.getItem("orders")||"[]")}catch(e){orders=[]}
+  const save=()=>{try{localStorage.setItem("orders",JSON.stringify(orders))}catch(e){}};
+  store={mode:"local",add:async o=>{orders.push(o);save();render()},upd:async(id,d)=>{const o=orders.find(x=>x.id===id);Object.assign(o,d);save();render()}};
+  $("mode").textContent="🟡 ডেমো মোড: ডেটা শুধু এই ব্রাউজারে থাকছে";render();
+}
+async function book(){
+  const name=$("name").value.trim(),phone=$("phone").value.trim(),model=$("model").value.trim();
+  if(!name||norm(phone).length<10||!model){$("bmsg").textContent="নাম, সঠিক মোবাইল নম্বর ও মডেল দিন।";return}
+  const[lo,hi]=est(),id="o"+Date.now();
+  const o={id,name,phone,brand:$("brand").value,model,prob:$("prob").value,note:$("note").value.trim(),estLo:lo,estHi:hi,status:0,price:0,created:Date.now(),notified:false};
+  try{await store.add(o);$("bmsg").style.color="var(--pr)";$("bmsg").textContent="✅ বুকিং হয়েছে! নিচে নম্বর দিয়ে অবস্থা দেখুন।";
+    $("track").value=phone;renderTrack();$("model").value=$("note").value=""}
+  catch(e){$("bmsg").style.color="var(--wa)";$("bmsg").textContent="বুকিং সেভ হয়নি। দোকানে সরাসরি কল করুন: "+SHOP.phone}
+}
+function renderTrack(){
+  const n=norm($("track").value);
+  if(n.length<10){$("trackList").innerHTML="";return}
+  const l=orders.filter(o=>norm(o.phone)===n).sort((a,b)=>b.created-a.created);
+  $("trackList").innerHTML=l.length?l.map(o=>`<div style="border-top:1px solid var(--bd);margin-top:10px;padding-top:10px">
+   <div class="row"><b>${esc(o.brand)} ${esc(o.model)}</b><span class="pill p${o.status}">${ST[o.status]}</span></div>
+   <div class="mu">${esc(o.prob)}</div>
+   <div class="bar"><i style="width:${PCT[o.status]}%"></i></div>
+   <div class="steps"><span>জমা</span><span>কাজ চলছে</span><span>রেডি</span></div>
+   <div style="margin-top:6px">${o.price?"চূড়ান্ত খরচ: <b>"+fmt(o.price)+"</b>":"আনুমানিক: "+fmt(o.estLo)+" – "+fmt(o.estHi)}</div>
+   ${o.status==2?'<div class="est">🎉 আপনার ফোন রেডি! দোকান থেকে নিয়ে যান।</div>':""}</div>`).join(""):'<div class="mu" style="margin-top:8px">এই নম্বরে কোনো বুকিং পাওয়া যায়নি।</div>';
+}
+function unlock(){if($("pin").value===SHOP.pin){unlocked=true;$("lock").classList.add("hide");$("panel").classList.remove("hide");renderShop()}else $("pmsg").textContent="ভুল পিন"}
+function sameDay(a,b){return new Date(a).toDateString()===new Date(b).toDateString()}
+function renderShop(){
+  if(!unlocked)return;
+  const now=new Date(),done=orders.filter(o=>o.status==2&&o.price>0);
+  const sum=l=>l.reduce((s,o)=>s+o.price,0);
+  $("sToday").textContent=fmt(sum(done.filter(o=>sameDay(o.doneAt||o.created,now))));
+  $("sMonth").textContent=fmt(sum(done.filter(o=>{const d=new Date(o.doneAt||o.created);return d.getMonth()==now.getMonth()&&d.getFullYear()==now.getFullYear()})));
+  $("sOpen").textContent=orders.filter(o=>o.status<2).length;
+  $("sDone").textContent=orders.filter(o=>o.status==2).length;
+  const l=[...orders].sort((a,b)=>(a.status==2)-(b.status==2)||b.created-a.created);
+  $("orders").innerHTML=l.length?l.map(o=>`<div class="card">
+   <div class="row"><div><b>${esc(o.brand)} ${esc(o.model)}</b>${o.status==0?' <span class="pill p0">নতুন</span>':""}<br>
+   <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a> · ${esc(o.name)}</div><span class="pill p${o.status}">${ST[o.status]}</span></div>
+   <div class="mu">${esc(o.prob)}${o.note?" — "+esc(o.note):""} · আনুমানিক ${fmt(o.estLo)}–${fmt(o.estHi)}</div>
+   <div class="row" style="margin-top:10px;gap:6px">
+    <select onchange="setSt('${o.id}',+this.value)" style="flex:1">${ST.map((s,i)=>`<option value="${i}" ${i==o.status?"selected":""}>${s}</option>`).join("")}</select>
+    <input type="number" inputmode="numeric" placeholder="চূড়ান্ত টাকা" value="${o.price||""}" onchange="setPrice('${o.id}',+this.value)" style="flex:1">
+   </div>
+   ${o.status==2?`<a class="btn s" style="margin-top:10px" onclick="sms('${o.id}')" href="sms:${esc(o.phone)}?body=${encodeURIComponent(smsText(o))}">💬 SMS পাঠান${o.notified?" (আবার)":""}</a>`:""}
+  </div>`).join(""):'<div class="mu">এখনো কোনো অর্ডার নেই।</div>';
+}
+const smsText=o=>`${o.name}, আপনার ${o.brand} ${o.model} ফোনের কাজ শেষ, ফোন রেডি।${o.price?" মোট খরচ "+o.price+" টাকা।":""} - ${SHOP.name}, ${SHOP.phone}`;
+async function setSt(id,s){const d={status:s};if(s==2)d.doneAt=Date.now();try{await store.upd(id,d)}catch(e){}
+  if(s==2&&"Notification"in window&&Notification.permission==="default")try{Notification.requestPermission()}catch(e){}}
+async function setPrice(id,p){try{await store.upd(id,{price:p||0})}catch(e){}}
+async function sms(id){try{await store.upd(id,{notified:true})}catch(e){}}
+function render(){renderTrack();renderShop()}
+initStore();
+</script>
+</body>
+</html>
